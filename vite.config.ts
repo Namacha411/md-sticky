@@ -12,6 +12,13 @@ export default defineConfig(() => ({
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
   },
 
+  // 付箋ウィンドウ (index.html) と一覧ウィンドウ (list.html) の 2 ページ構成
+  build: {
+    rolldownOptions: {
+      input: { main: "index.html", list: "list.html" },
+    },
+  },
+
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
   // 1. prevent Vite from obscuring rust errors

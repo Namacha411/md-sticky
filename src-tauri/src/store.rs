@@ -2,8 +2,10 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::time::SystemTime;
 
-pub const DEFAULT_COLOR: &str = "#fff7a8";
+/// ヘッダーのアクセント色。本文の背景は常に暗色
+pub const DEFAULT_COLOR: &str = "#e6b905";
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NoteMeta {
@@ -14,7 +16,6 @@ pub struct NoteMeta {
     pub h: f64,
     pub color: String,
     pub alpha: f64,
-    pub pinned: bool,
 }
 
 impl NoteMeta {
@@ -26,8 +27,7 @@ impl NoteMeta {
             w: 280.0,
             h: 260.0,
             color: DEFAULT_COLOR.into(),
-            alpha: 0.7,
-            pinned: true,
+            alpha: 0.85,
         }
     }
 }
@@ -100,6 +100,11 @@ impl Store {
             Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(String::new()),
             r => r,
         }
+    }
+
+    /// 本文ファイルの最終更新時刻。まだ本文が無ければ None
+    pub fn body_modified(&self, id: &str) -> Option<SystemTime> {
+        fs::metadata(self.body_path(id).ok()?).ok()?.modified().ok()
     }
 
     pub fn write_body(&self, id: &str, content: &str) -> io::Result<()> {

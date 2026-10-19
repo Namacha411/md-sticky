@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>メモの一覧</title>
+    <script type="module" src="/src/list.ts" defer></script>
+  </head>
+
+  <body>
+    <header class="list-header">
+      <h1>メモ</h1>
+      <button class="icon-btn" id="btn-new" title="新しいメモ">&#xE710;</button>
+    </header>
+    <label class="search">
+      <span class="icon">&#xE721;</span>
+      <input id="q" type="search" placeholder="検索..." autocomplete="off" />
+    </label>
+    <ul class="items" id="items"></ul>
+    <p class="empty" id="empty" hidden></p>
+  </body>
+</html>

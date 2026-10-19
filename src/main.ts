@@ -1,7 +1,7 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import * as api from "./api";
 import { createEditor } from "./editor";
-import { initToolbar } from "./toolbar";
+import { hideNote, initHeader } from "./header";
+import "./base.css";
 import "./style.css";
 
 async function main() {
@@ -9,10 +9,10 @@ async function main() {
   if (!id) throw new Error("note id is missing in URL");
 
   const [meta, body] = await Promise.all([api.getMeta(id), api.readNote(id)]);
-  initToolbar(meta);
   const editor = await createEditor(document.getElementById("editor")!, body, (md) =>
     api.saveNote(id, md),
   );
+  initHeader(meta, editor);
 
   // トレイから終了したときなどに未保存分を失わないよう、フォーカスが外れたら即保存
   window.addEventListener("blur", editor.flush);
@@ -24,8 +24,7 @@ async function main() {
       api.createNote(id);
     } else if (e.key === "w") {
       e.preventDefault();
-      editor.flush();
-      getCurrentWindow().hide();
+      hideNote(editor);
     }
   });
 }

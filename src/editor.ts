@@ -1,12 +1,14 @@
 import { Crepe } from "@milkdown/crepe";
 import "@milkdown/crepe/theme/common/style.css";
-import "@milkdown/crepe/theme/frame.css";
+import "@milkdown/crepe/theme/frame-dark.css";
 
 const SAVE_DELAY_MS = 500;
 
 export interface NoteEditor {
   /** 保存待ちの変更があれば即座に保存する */
   flush: () => void;
+  /** 保存待ちの変更を捨てる (削除時に本文が復活しないようにする) */
+  discard: () => void;
 }
 
 export async function createEditor(
@@ -24,18 +26,22 @@ export async function createEditor(
       [Crepe.Feature.Latex]: false,
     },
     featureConfigs: {
-      [Crepe.Feature.Placeholder]: { text: "Markdown で書く…", mode: "doc" },
+      [Crepe.Feature.Placeholder]: { text: "メモを作成する...", mode: "doc" },
     },
   });
 
   let pending: string | null = null;
   let timer: number | undefined;
 
-  const flush = () => {
+  const discard = () => {
     clearTimeout(timer);
+    pending = null;
+  };
+
+  const flush = () => {
     if (pending === null) return;
     const markdown = pending;
-    pending = null;
+    discard();
     save(markdown).catch((e) => console.error("failed to save note", e));
   };
 
@@ -48,5 +54,5 @@ export async function createEditor(
   });
 
   await crepe.create();
-  return { flush };
+  return { flush, discard };
 }

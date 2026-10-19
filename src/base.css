@@ -1,0 +1,47 @@
+/* 付箋と一覧で共有するトークンとアイコンボタン */
+:root {
+  --surface: #2b2b2b;
+  --surface-raised: #383838;
+  --text: #e8e8e8;
+  --text-muted: #9a9a9a;
+  --hover: rgb(255 255 255 / 0.08);
+  --danger: #e5484d;
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+  --font-icon: "Segoe Fluent Icons", "Segoe MDL2 Assets";
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.icon,
+.icon-btn {
+  font-family: var(--font-icon);
+  font-style: normal;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: rgb(0 0 0 / 0.12);
+}
