@@ -1,6 +1,6 @@
 [package]
 name = "md-sticky"
-version = "1.0.0"
+version = "1.0.1"
 description = "Markdown sticky notes with translucent background"
 authors = ["Tanaka Hideyuki"]
 license = "MIT OR Apache-2.0"
