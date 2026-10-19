@@ -5,6 +5,7 @@ import { COLORS, foregroundOn } from "./colors";
 import type { NoteEditor } from "./editor";
 
 const DELETE_CONFIRM_MS = 3000;
+const DEFERRED_DESTROY_MS = 500;
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -94,7 +95,8 @@ export function initHeader(meta: NoteMeta, editor: NoteEditor) {
     editor.discard();
     await win.hide();
     await api.deleteNote(meta.id);
-    await win.destroy();
+    // 破棄は UI スレッドを止めるので、他の付箋や一覧の再描画を待ってから行う
+    window.setTimeout(() => win.destroy(), DEFERRED_DESTROY_MS);
   });
 
   $("grip").addEventListener("mousedown", (e) => {

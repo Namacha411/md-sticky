@@ -162,6 +162,38 @@ body {
   padding: 10px 14px 20px;
 }
 
+/* Crepe の見出しは記事向けで大きく上余白も広いので、付箋向けに詰める */
+.editor .milkdown .ProseMirror :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0.5em;
+  line-height: 1.3;
+}
+
+.editor .milkdown .ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.editor .milkdown .ProseMirror h1 { font-size: 1.6em; }
+.editor .milkdown .ProseMirror h2 { font-size: 1.4em; }
+.editor .milkdown .ProseMirror h3 { font-size: 1.25em; }
+.editor .milkdown .ProseMirror h4 { font-size: 1.1em; }
+.editor .milkdown .ProseMirror h5,
+.editor .milkdown .ProseMirror h6 { font-size: 1em; }
+
+/* リスト記号・チェックボックスの枠は 32px 固定なので、本文 1 行 (line-height 1.5 + 上下 4px) に合わせる */
+.editor .milkdown .milkdown-list-item-block li .label-wrapper,
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label {
+  height: calc(var(--crepe-base-font-size) * 1.5 + 8px);
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label {
+  line-height: 1.5;
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* ---- resize grip ---- */
 .resize-grip {
   position: absolute;
