@@ -14,9 +14,6 @@ type StoreState = Mutex<Store>;
 /// メモの内容や構成が変わったことを一覧ウィンドウに知らせるイベント
 const NOTES_CHANGED: &str = "notes-changed";
 
-/// 削除したメモのウィンドウを破棄するまでの猶予
-const DEFERRED_DESTROY: Duration = Duration::from_millis(500);
-
 fn to_err(e: impl std::fmt::Display) -> String {
     e.to_string()
 }
@@ -152,21 +149,13 @@ async fn delete_note(app: AppHandle, caller: WebviewWindow, id: String) -> Resul
         store.remove(&id).map_err(to_err)?;
         store.save_meta().map_err(to_err)?;
     }
-    notify_changed(&app);
     let label = window::label(&id);
     if caller.label() != label {
         if let Some(w) = app.get_webview_window(&label) {
-            // WebView の破棄は全ウィンドウ共有の UI スレッドを数百 ms 止めるので、
-            // 先に隠して呼び出し元の画面更新を済ませてから破棄する
-            w.hide().map_err(to_err)?;
-            std::thread::spawn(move || {
-                std::thread::sleep(DEFERRED_DESTROY);
-                if let Err(e) = w.destroy() {
-                    eprintln!("failed to destroy note window: {e}");
-                }
-            });
+            w.destroy().map_err(to_err)?;
         }
     }
+    notify_changed(&app);
     Ok(())
 }
 
