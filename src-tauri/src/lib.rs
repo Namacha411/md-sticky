@@ -60,19 +60,12 @@ async fn create_note(app: AppHandle, from: Option<String>) -> Result<String, Str
     new_note(&app, from.as_deref()).map_err(to_err)
 }
 
+/// データだけを消す。ウィンドウは応答を受け取った側 (フロントエンド) が自分で破棄する。
 #[tauri::command]
-async fn delete_note(app: AppHandle, id: String) -> Result<(), String> {
-    {
-        let state = app.state::<StoreState>();
-        let mut store = state.lock().unwrap();
-        store.remove(&id).map_err(to_err)?;
-        store.save_meta().map_err(to_err)?;
-    }
-    if let Some(w) = app.get_webview_window(&window::label(&id)) {
-        // close() だと閉じる前の保存処理が走って本文が復活しうるので destroy() を使う
-        w.destroy().map_err(to_err)?;
-    }
-    Ok(())
+fn delete_note(store: State<'_, StoreState>, id: String) -> Result<(), String> {
+    let mut store = store.lock().unwrap();
+    store.remove(&id).map_err(to_err)?;
+    store.save_meta().map_err(to_err)
 }
 
 /// 付箋を新規作成して開く。`from` があればその付箋から少しずらした位置に置く。

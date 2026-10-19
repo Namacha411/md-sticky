@@ -67,7 +67,8 @@ export function initToolbar(meta: NoteMeta) {
   let confirmTimer: number | undefined;
   del.addEventListener("click", () => {
     if (del.classList.contains("confirm")) {
-      api.deleteNote(meta.id);
+      // close() だと閉じる前の保存処理が走って本文が復活しうるので destroy() を使う
+      api.deleteNote(meta.id).then(() => win.destroy());
       return;
     }
     del.classList.add("confirm");
