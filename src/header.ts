@@ -82,6 +82,11 @@ export function initHeader(meta: NoteMeta, editor: NoteEditor) {
     api.openList();
   });
 
+  $("btn-settings").addEventListener("click", () => {
+    closeMenu();
+    api.openSettings();
+  });
+
   // ダイアログを使わず、2 回押しで削除を確定する
   deleteButton.addEventListener("click", async () => {
     if (!deleteButton.classList.contains("confirm")) {

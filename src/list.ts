@@ -12,22 +12,7 @@ const query = $<HTMLInputElement>("q");
 const items = $("items");
 const empty = $("empty");
 
-let notes: (NoteSummary & { plain: string })[] = [];
-
-/** 一覧のプレビューと検索用に、Markdown の記号を取り除いたテキストにする */
-function toPlainText(md: string): string {
-  return md
-    .replace(/^\s*\|?[\s:|-]+\|?\s*$/gm, "") // 表の区切り行
-    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // リンク・画像
-    .replace(/^\s{0,3}(#{1,6}\s+|>\s?|[-*+]\s+(\[[ xX]\]\s+)?|\d+\.\s+)/gm, "") // 行頭の記号
-    .replace(/```\w*/g, "")
-    .replace(/<br\s*\/?>/g, " ")
-    .replace(/\*\*|__|~~|`|\|/g, " ")
-    .replace(/\\([\\`*_{}[\]()#+\-.!|~<>])/g, "$1")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n{2,}/g, "\n")
-    .trim();
-}
+let notes: NoteSummary[] = [];
 
 function formatDate(ms: number): string {
   if (ms === 0) return "";
@@ -61,7 +46,7 @@ function appendHighlighted(el: HTMLElement, text: string, needle: string) {
   el.append(text.slice(pos));
 }
 
-function renderItem(note: (typeof notes)[number], needle: string): HTMLLIElement {
+function renderItem(note: NoteSummary, needle: string): HTMLLIElement {
   const li = document.createElement("li");
   li.className = "item";
   li.style.setProperty("--accent", note.color);
@@ -79,8 +64,8 @@ function renderItem(note: (typeof notes)[number], needle: string): HTMLLIElement
 
   const preview = document.createElement("p");
   preview.className = "item-preview";
-  if (note.plain) {
-    appendHighlighted(preview, note.plain, needle);
+  if (note.body.trim()) {
+    appendHighlighted(preview, note.body.trim(), needle);
   } else {
     preview.textContent = "（空のメモ）";
     preview.classList.add("muted");
@@ -108,15 +93,14 @@ function renderItem(note: (typeof notes)[number], needle: string): HTMLLIElement
 
 function render() {
   const needle = query.value.trim().toLowerCase();
-  const visible = needle ? notes.filter((n) => n.plain.toLowerCase().includes(needle)) : notes;
+  const visible = needle ? notes.filter((n) => n.body.toLowerCase().includes(needle)) : notes;
   items.replaceChildren(...visible.map((n) => renderItem(n, needle)));
   empty.hidden = visible.length > 0;
   empty.textContent = needle ? "一致するメモはありません" : "メモはありません";
 }
 
 async function refresh() {
-  const list = await api.listNotes();
-  notes = list.map((n) => ({ ...n, plain: toPlainText(n.body) }));
+  notes = await api.listNotes();
   render();
 }
 
@@ -128,6 +112,7 @@ function scheduleRefresh() {
 
 query.addEventListener("input", render);
 $("btn-new").addEventListener("click", () => api.createNote());
+$("btn-settings").addEventListener("click", () => api.openSettings());
 window.addEventListener("focus", scheduleRefresh);
 listen(api.NOTES_CHANGED, scheduleRefresh);
 refresh();

@@ -12,10 +12,10 @@ export default defineConfig(() => ({
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
   },
 
-  // 付箋ウィンドウ (index.html) と一覧ウィンドウ (list.html) の 2 ページ構成
+  // 付箋ウィンドウ (index.html)・一覧ウィンドウ (list.html)・設定ウィンドウ (settings.html) の 3 ページ構成
   build: {
     rolldownOptions: {
-      input: { main: "index.html", list: "list.html" },
+      input: { main: "index.html", list: "list.html", settings: "settings.html" },
     },
   },
 

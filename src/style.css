@@ -3,6 +3,10 @@
   --on-accent: #1a1a1a;
   --note-alpha: 0.85;
   --header-h: 32px;
+  /* 設定で上書きされる本文の書式 (src/fonts.ts) */
+  --note-font: var(--font-ui);
+  --note-font-code: var(--font-code);
+  --note-font-size: 14px;
 }
 
 html,
@@ -152,10 +156,10 @@ body {
 .editor .milkdown {
   --crepe-color-background: transparent;
   --crepe-color-on-background: var(--text);
-  --crepe-base-font-size: 14px;
-  --crepe-font-default: var(--font-ui);
-  --crepe-font-title: var(--font-ui);
-  --crepe-font-code: "Cascadia Mono", "Consolas", "BIZ UDGothic", monospace;
+  --crepe-base-font-size: var(--note-font-size);
+  --crepe-font-default: var(--note-font);
+  --crepe-font-title: var(--note-font);
+  --crepe-font-code: var(--note-font-code);
 }
 
 .editor .milkdown .ProseMirror {
@@ -198,9 +202,36 @@ body {
   line-height: 1.5;
 }
 
+/* 記号と本文の見た目の間隔を 0.5em にそろえる。Crepe は 24px 枠 + gap 10px 固定で、文字が小さいと間延びする */
+.editor .milkdown .milkdown-list-item-block li {
+  --list-icon: 1.25em;
+  gap: 0;
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper {
+  width: auto;
+}
+
 .editor .milkdown .milkdown-list-item-block li .label-wrapper svg {
-  width: 18px;
-  height: 18px;
+  width: var(--list-icon);
+  height: var(--list-icon);
+}
+
+/* アイコンは 24 の枠内に描かれているので、絵の右端から本文までが 0.5em になるよう余白を差し引く */
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label.bullet {
+  width: var(--list-icon);
+  margin-right: calc(0.5em - var(--list-icon) * 9 / 24);
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label:is(.checked, .unchecked) {
+  width: var(--list-icon);
+  margin-right: calc(0.5em - var(--list-icon) * 3 / 24);
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label.ordered {
+  width: auto;
+  min-width: 1.25em;
+  margin-right: 0.5em;
 }
 
 /* ---- resize grip ---- */
