@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>md-sticky</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div class="note">
+      <header class="toolbar" data-tauri-drag-region>
+        <button id="btn-new" title="新規付箋 (Ctrl+N)">＋</button>
+        <div class="spacer" data-tauri-drag-region></div>
+        <button id="btn-color" title="色">🎨</button>
+        <input id="alpha" type="range" min="0.2" max="1" step="0.05" title="不透明度" />
+        <button id="btn-pin" title="最前面に固定">📌</button>
+        <button id="btn-delete" title="削除">🗑</button>
+      </header>
+      <div class="palette" id="palette" hidden></div>
+      <div class="editor" id="editor"></div>
+      <div class="resize-grip" id="grip" title="サイズ変更"></div>
+    </div>
+  </body>
+</html>

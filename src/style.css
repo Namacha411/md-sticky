@@ -1,0 +1,164 @@
+:root {
+  --note-bg: #fff7a8;
+  --note-alpha: 0.7;
+  --note-fg: #1c1c1c;
+  --toolbar-h: 26px;
+}
+
+:root.dark {
+  --note-fg: #f0f0f0;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  /* ウィンドウ自体は完全に透明にし、色は .note だけに付ける */
+  background: transparent;
+  font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+
+.note {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--note-bg) 60%, #000 15%);
+  /* 背景色だけを半透明にする (文字は不透明のまま) */
+  background: color-mix(in srgb, var(--note-bg) calc(var(--note-alpha) * 100%), transparent);
+  color: var(--note-fg);
+  overflow: hidden;
+}
+
+/* ---- toolbar ---- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--toolbar-h);
+  flex-shrink: 0;
+  padding: 0 4px;
+  cursor: grab;
+  user-select: none;
+}
+
+.toolbar > :not(.spacer) {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.note:hover .toolbar > :not(.spacer),
+.note:focus-within .toolbar > :not(.spacer) {
+  opacity: 1;
+}
+
+.spacer {
+  flex: 1;
+  align-self: stretch;
+}
+
+.toolbar button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  line-height: 22px;
+  cursor: pointer;
+}
+
+.toolbar button:hover {
+  background: rgb(0 0 0 / 0.1);
+}
+
+/* ツールバー全体の表示/非表示に opacity を使っているので、ここでは filter で薄くする */
+#btn-pin:not(.active) {
+  filter: grayscale(1) opacity(0.45);
+}
+
+#btn-delete.confirm {
+  background: #e5484d;
+}
+
+#alpha {
+  width: 56px;
+  margin: 0 2px;
+  accent-color: color-mix(in srgb, var(--note-fg) 70%, transparent);
+  cursor: pointer;
+}
+
+/* ---- palette ---- */
+.palette {
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px 6px;
+  flex-shrink: 0;
+}
+
+.palette[hidden] {
+  display: none;
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 0.25);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ---- editor ---- */
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.editor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editor::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgb(0 0 0 / 0.2);
+}
+
+.editor .milkdown {
+  --crepe-color-background: transparent;
+  --crepe-color-on-background: var(--note-fg);
+  --crepe-color-on-surface: var(--note-fg);
+  --crepe-color-hover: rgb(0 0 0 / 0.08);
+  --crepe-base-font-size: 14px;
+  --crepe-font-default: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+  --crepe-font-title: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+  --crepe-font-code: "Cascadia Mono", "Consolas", "BIZ UDGothic", monospace;
+}
+
+.editor .milkdown .ProseMirror {
+  padding: 2px 14px 20px;
+}
+
+/* ---- resize grip ---- */
+.resize-grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    color-mix(in srgb, var(--note-fg) 30%, transparent) 50% 60%,
+    transparent 60% 70%,
+    color-mix(in srgb, var(--note-fg) 30%, transparent) 70% 80%,
+    transparent 80%
+  );
+}
