@@ -1,0 +1,222 @@
+:root {
+  --accent: #e6b905;
+  --on-accent: #1a1a1a;
+  --note-alpha: 0.85;
+  --header-h: 32px;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  /* ウィンドウ自体は完全に透明にし、色は .note だけに付ける */
+  background: transparent;
+}
+
+.note {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  /* 本文の背景色だけを半透明にする (文字は不透明のまま) */
+  background: color-mix(in srgb, var(--surface) calc(var(--note-alpha) * 100%), transparent);
+  overflow: hidden;
+}
+
+/* ---- header ---- */
+.header {
+  display: flex;
+  align-items: center;
+  height: var(--header-h);
+  flex-shrink: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  user-select: none;
+}
+
+.header .icon-btn {
+  width: 36px;
+  height: var(--header-h);
+  border-radius: 0;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.note:hover .header .icon-btn,
+.note:focus-within .header .icon-btn {
+  opacity: 1;
+}
+
+#btn-close:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.spacer {
+  flex: 1;
+  align-self: stretch;
+}
+
+/* ---- menu (…) ---- */
+.menu {
+  position: absolute;
+  top: calc(var(--header-h) + 4px);
+  right: 4px;
+  z-index: 10;
+  width: min(240px, calc(100% - 8px));
+  padding: 6px 0;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.45);
+  font-size: 13px;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.swatches {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 10px 8px;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.swatch:hover {
+  border-color: var(--text);
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  color: var(--text-muted);
+}
+
+.menu-row input {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: var(--hover);
+}
+
+.menu-item.confirm {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ---- editor ---- */
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.editor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editor::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.2);
+}
+
+.editor .milkdown {
+  --crepe-color-background: transparent;
+  --crepe-color-on-background: var(--text);
+  --crepe-base-font-size: 14px;
+  --crepe-font-default: var(--font-ui);
+  --crepe-font-title: var(--font-ui);
+  --crepe-font-code: "Cascadia Mono", "Consolas", "BIZ UDGothic", monospace;
+}
+
+.editor .milkdown .ProseMirror {
+  padding: 10px 14px 20px;
+}
+
+/* Crepe の見出しは記事向けで大きく上余白も広いので、付箋向けに詰める */
+.editor .milkdown .ProseMirror :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0.5em;
+  line-height: 1.3;
+}
+
+.editor .milkdown .ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.editor .milkdown .ProseMirror h1 { font-size: 1.6em; }
+.editor .milkdown .ProseMirror h2 { font-size: 1.4em; }
+.editor .milkdown .ProseMirror h3 { font-size: 1.25em; }
+.editor .milkdown .ProseMirror h4 { font-size: 1.1em; }
+.editor .milkdown .ProseMirror h5,
+.editor .milkdown .ProseMirror h6 { font-size: 1em; }
+
+/* 引用の字下げ (Crepe は 40px) を半分程度に詰める */
+.editor .milkdown .ProseMirror blockquote {
+  padding-left: 18px;
+}
+
+.editor .milkdown .ProseMirror blockquote::before {
+  width: 3px;
+}
+
+/* リスト記号・チェックボックスの枠は 32px 固定なので、本文 1 行 (line-height 1.5 + 上下 4px) に合わせる */
+.editor .milkdown .milkdown-list-item-block li .label-wrapper,
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label {
+  height: calc(var(--crepe-base-font-size) * 1.5 + 8px);
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper .label {
+  line-height: 1.5;
+}
+
+.editor .milkdown .milkdown-list-item-block li .label-wrapper svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- resize grip ---- */
+.resize-grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    rgb(255 255 255 / 0.25) 50% 60%,
+    transparent 60% 70%,
+    rgb(255 255 255 / 0.25) 70% 80%,
+    transparent 80%
+  );
+}
