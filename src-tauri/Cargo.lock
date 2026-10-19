@@ -2117,7 +2117,7 @@ dependencies = [
 
 [[package]]
 name = "md-sticky"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "font-kit",
  "serde",

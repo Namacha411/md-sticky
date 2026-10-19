@@ -22,6 +22,15 @@ Markdown で書ける、背景が半透明のデスクトップ付箋アプリ�
 | 削除 | … →「メモの削除」を 2 回押す / 一覧のゴミ箱を 2 回押す |
 | 設定 | … →「設定」/ 一覧の歯車 / トレイメニュー |
 
+## インストール
+
+[Releases](https://github.com/Namacha411/md-sticky/releases/latest) から次のどちらかをダウンロードして実行する（Windows 10/11 x64）。
+
+- `md-sticky_x.y.z_x64-setup.exe` … 通常はこちら（ユーザー単位でインストール、管理者権限不要）
+- `md-sticky_x.y.z_x64_en-US.msi` … MSI が必要な場合
+
+コード署名をしていないため、初回は SmartScreen の警告が出る。「詳細情報」→「実行」で進める。
+
 ## 保存先
 
 `%APPDATA%\com.thdyk.md-sticky\`
@@ -38,3 +47,7 @@ bun tauri dev      # 開発起動
 bun tauri build    # インストーラー作成
 cd src-tauri && cargo test
 ```
+
+## ライセンス
+
+[MIT](LICENSE-MIT) または [Apache-2.0](LICENSE-APACHE) のいずれかを選択できます。
