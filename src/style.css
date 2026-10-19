@@ -179,6 +179,15 @@ body {
 .editor .milkdown .ProseMirror h5,
 .editor .milkdown .ProseMirror h6 { font-size: 1em; }
 
+/* 引用の字下げ (Crepe は 40px) を半分程度に詰める */
+.editor .milkdown .ProseMirror blockquote {
+  padding-left: 18px;
+}
+
+.editor .milkdown .ProseMirror blockquote::before {
+  width: 3px;
+}
+
 /* リスト記号・チェックボックスの枠は 32px 固定なので、本文 1 行 (line-height 1.5 + 上下 4px) に合わせる */
 .editor .milkdown .milkdown-list-item-block li .label-wrapper,
 .editor .milkdown .milkdown-list-item-block li .label-wrapper .label {

@@ -1,4 +1,7 @@
 import { Crepe } from "@milkdown/crepe";
+import { editorViewCtx } from "@milkdown/kit/core";
+import { lift } from "@milkdown/kit/prose/commands";
+import { type EditorState, TextSelection } from "@milkdown/kit/prose/state";
 import "@milkdown/crepe/theme/common/style.css";
 import "@milkdown/crepe/theme/frame-dark.css";
 
@@ -54,5 +57,36 @@ export async function createEditor(
   });
 
   await crepe.create();
+  liftBlockquoteOnBackspace(root, crepe);
   return { flush, discard };
+}
+
+/** カーソルが引用ブロック先頭の段落の、さらに先頭にあるか */
+function atStartOfBlockquote(state: EditorState): boolean {
+  const sel = state.selection;
+  if (!(sel instanceof TextSelection) || !sel.empty) return false;
+  const $pos = sel.$from;
+  if ($pos.parentOffset !== 0 || $pos.depth < 1) return false;
+  return $pos.node($pos.depth - 1).type.name === "blockquote" && $pos.index($pos.depth - 1) === 0;
+}
+
+/**
+ * Milkdown は Backspace を joinTextblockBackward (前のブロックとの結合のみ) に差し替えているため、
+ * 文書先頭の引用ブロックでは何も起きない。引用の先頭で Backspace を押したら引用を解除する。
+ */
+function liftBlockquoteOnBackspace(root: HTMLElement, crepe: Crepe) {
+  // ProseMirror より先に処理するため、祖先要素のキャプチャフェーズで捕まえる
+  root.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key !== "Backspace" || e.isComposing || e.ctrlKey || e.altKey) return;
+      const view = crepe.editor.action((ctx) => ctx.get(editorViewCtx));
+      if (!atStartOfBlockquote(view.state)) return;
+      if (lift(view.state, view.dispatch)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    true,
+  );
 }
