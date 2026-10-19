@@ -3,6 +3,7 @@ use tauri::{AppHandle, Manager, Theme, WebviewUrl, WebviewWindow, WebviewWindowB
 
 const LABEL_PREFIX: &str = "note-";
 pub const LIST_LABEL: &str = "list";
+pub const SETTINGS_LABEL: &str = "settings";
 
 pub fn label(id: &str) -> String {
     format!("{LABEL_PREFIX}{id}")
@@ -53,5 +54,18 @@ pub fn open_list_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         .theme(Some(Theme::Dark))
         .inner_size(360.0, 560.0)
         .min_inner_size(260.0, 300.0)
+        .build()
+}
+
+/// 設定ウィンドウを開く。
+pub fn open_settings_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
+    if let Some(w) = reveal(app, SETTINGS_LABEL)? {
+        return Ok(w);
+    }
+    WebviewWindowBuilder::new(app, SETTINGS_LABEL, WebviewUrl::App("settings.html".into()))
+        .title("設定")
+        .theme(Some(Theme::Dark))
+        .inner_size(400.0, 600.0)
+        .min_inner_size(320.0, 360.0)
         .build()
 }

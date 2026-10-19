@@ -3,6 +3,10 @@
   --on-accent: #1a1a1a;
   --note-alpha: 0.85;
   --header-h: 32px;
+  /* 設定で上書きされる本文の書式 (src/fonts.ts) */
+  --note-font: var(--font-ui);
+  --note-font-code: var(--font-code);
+  --note-font-size: 14px;
 }
 
 html,
@@ -152,10 +156,10 @@ body {
 .editor .milkdown {
   --crepe-color-background: transparent;
   --crepe-color-on-background: var(--text);
-  --crepe-base-font-size: 14px;
-  --crepe-font-default: var(--font-ui);
-  --crepe-font-title: var(--font-ui);
-  --crepe-font-code: "Cascadia Mono", "Consolas", "BIZ UDGothic", monospace;
+  --crepe-base-font-size: var(--note-font-size);
+  --crepe-font-default: var(--note-font);
+  --crepe-font-title: var(--note-font);
+  --crepe-font-code: var(--note-font-code);
 }
 
 .editor .milkdown .ProseMirror {

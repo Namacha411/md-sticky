@@ -24,6 +24,11 @@ body {
   font-weight: 600;
 }
 
+.list-actions {
+  display: flex;
+  gap: 4px;
+}
+
 .list-header .icon-btn:hover {
   background: var(--hover);
 }

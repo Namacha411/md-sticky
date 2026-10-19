@@ -4,15 +4,18 @@ mod window;
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use std::time::{Duration, UNIX_EPOCH};
-use store::{NoteMeta, Store};
+use store::{NoteMeta, Settings, Store};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{App, AppHandle, Emitter, Manager, RunEvent, State, WebviewWindow, WindowEvent};
+use tauri_plugin_autostart::ManagerExt as _;
 
 type StoreState = Mutex<Store>;
 
 /// メモの内容や構成が変わったことを一覧ウィンドウに知らせるイベント
 const NOTES_CHANGED: &str = "notes-changed";
+/// 設定が変わったことを全ウィンドウに知らせるイベント (payload は新しい Settings)
+const SETTINGS_CHANGED: &str = "settings-changed";
 
 fn to_err(e: impl std::fmt::Display) -> String {
     e.to_string()
@@ -113,6 +116,50 @@ fn list_notes(store: State<'_, StoreState>) -> Result<Vec<NoteSummary>, String> 
     Ok(notes)
 }
 
+#[tauri::command]
+fn get_settings(store: State<'_, StoreState>) -> Settings {
+    store.lock().unwrap().settings.clone()
+}
+
+#[tauri::command]
+fn update_settings(
+    app: AppHandle,
+    store: State<'_, StoreState>,
+    settings: Settings,
+) -> Result<Settings, String> {
+    let saved = {
+        let mut store = store.lock().unwrap();
+        store.save_settings(settings).map_err(to_err)?;
+        store.settings.clone()
+    };
+    if let Err(e) = app.emit(SETTINGS_CHANGED, &saved) {
+        eprintln!("failed to emit {SETTINGS_CHANGED}: {e}");
+    }
+    Ok(saved)
+}
+
+/// インストール済みフォントのファミリー名 (重複なし・名前順)
+#[tauri::command]
+async fn list_fonts() -> Result<Vec<String>, String> {
+    let mut families = font_kit::source::SystemSource::new().all_families().map_err(to_err)?;
+    // 縦書き用 (@ 始まり) のファミリーは選択肢に出さない
+    families.retain(|f| !f.starts_with('@'));
+    families.sort_by_key(|f| f.to_lowercase());
+    families.dedup();
+    Ok(families)
+}
+
+#[tauri::command]
+fn get_autostart(app: AppHandle) -> Result<bool, String> {
+    app.autolaunch().is_enabled().map_err(to_err)
+}
+
+#[tauri::command]
+fn set_autostart(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let autolaunch = app.autolaunch();
+    if enabled { autolaunch.enable() } else { autolaunch.disable() }.map_err(to_err)
+}
+
 // Windows ではウィンドウ操作を同期コマンド内で行うとデッドロックしうるため、以下は async にする
 
 #[tauri::command]
@@ -136,6 +183,12 @@ async fn open_note(app: AppHandle, id: String) -> Result<(), String> {
 #[tauri::command]
 async fn open_list(app: AppHandle) -> Result<(), String> {
     window::open_list_window(&app).map_err(to_err)?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn open_settings(app: AppHandle) -> Result<(), String> {
+    window::open_settings_window(&app).map_err(to_err)?;
     Ok(())
 }
 
@@ -168,7 +221,7 @@ fn new_note(app: &AppHandle, from: Option<&str>) -> tauri::Result<String> {
             .and_then(|id| store.get(id))
             .map(|m| (m.x + 30.0, m.y + 30.0))
             .unwrap_or((100.0, 100.0));
-        let meta = NoteMeta::new(uuid::Uuid::new_v4().to_string(), x, y);
+        let meta = NoteMeta::new(uuid::Uuid::new_v4().to_string(), x, y, &store.settings);
         store.add(meta.clone());
         store.save_meta()?;
         meta
@@ -198,8 +251,9 @@ fn build_tray(app: &App) -> tauri::Result<()> {
     let new = MenuItem::with_id(app, "new", "新規付箋", true, None::<&str>)?;
     let list = MenuItem::with_id(app, "list", "メモの一覧", true, None::<&str>)?;
     let show = MenuItem::with_id(app, "show", "すべて表示", true, None::<&str>)?;
+    let settings = MenuItem::with_id(app, "settings", "設定", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "終了", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&new, &list, &show, &quit])?;
+    let menu = Menu::with_items(app, &[&new, &list, &show, &settings, &quit])?;
     TrayIconBuilder::new()
         .icon(app.default_window_icon().unwrap().clone())
         .tooltip("md-sticky")
@@ -223,6 +277,11 @@ fn build_tray(app: &App) -> tauri::Result<()> {
             }
             "list" => open_list_or_log(app),
             "show" => show_all(app),
+            "settings" => {
+                if let Err(e) = window::open_settings_window(app) {
+                    eprintln!("failed to open settings: {e}");
+                }
+            }
             "quit" => app.exit(0),
             _ => {}
         })
@@ -273,6 +332,7 @@ fn track_geometry(window: &tauri::Window, event: &WindowEvent) {
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| show_all(app)))
+        .plugin(tauri_plugin_autostart::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             read_note,
             save_note,
@@ -282,12 +342,19 @@ pub fn run() {
             create_note,
             open_note,
             open_list,
-            delete_note
+            open_settings,
+            delete_note,
+            get_settings,
+            update_settings,
+            list_fonts,
+            get_autostart,
+            set_autostart
         ])
         .setup(|app| {
             let mut store = Store::load(app.path().app_data_dir()?)?;
             if store.notes.is_empty() {
-                store.add(NoteMeta::new(uuid::Uuid::new_v4().to_string(), 100.0, 100.0));
+                let meta = NoteMeta::new(uuid::Uuid::new_v4().to_string(), 100.0, 100.0, &store.settings);
+                store.add(meta);
                 store.save_meta()?;
             }
             let metas = store.notes.clone();

@@ -1,5 +1,6 @@
 import * as api from "./api";
 import { createEditor } from "./editor";
+import { followFontSettings } from "./fonts";
 import { hideNote, initHeader } from "./header";
 import "./base.css";
 import "./style.css";
@@ -8,7 +9,7 @@ async function main() {
   const id = new URLSearchParams(location.search).get("id");
   if (!id) throw new Error("note id is missing in URL");
 
-  const [meta, body] = await Promise.all([api.getMeta(id), api.readNote(id)]);
+  const [meta, body] = await Promise.all([api.getMeta(id), api.readNote(id), followFontSettings()]);
   const editor = await createEditor(document.getElementById("editor")!, body, (md) =>
     api.saveNote(id, md),
   );

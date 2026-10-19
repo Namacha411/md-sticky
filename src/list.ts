@@ -128,6 +128,7 @@ function scheduleRefresh() {
 
 query.addEventListener("input", render);
 $("btn-new").addEventListener("click", () => api.createNote());
+$("btn-settings").addEventListener("click", () => api.openSettings());
 window.addEventListener("focus", scheduleRefresh);
 listen(api.NOTES_CHANGED, scheduleRefresh);
 refresh();

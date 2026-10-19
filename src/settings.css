@@ -1,0 +1,144 @@
+html,
+body {
+  min-height: 100%;
+  background: #202020;
+}
+
+body {
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+h1 {
+  margin: 0;
+  padding: 10px 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+h2 {
+  margin: 16px 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.group {
+  border-radius: 6px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.row + .row {
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+}
+
+.row > span:first-child {
+  flex-shrink: 0;
+}
+
+.row input:not([type]) {
+  flex: 1;
+  min-width: 0;
+  max-width: 200px;
+  padding: 6px 8px;
+  border: none;
+  border-bottom: 1px solid var(--text-muted);
+  border-radius: 4px;
+  outline: none;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+}
+
+.row input:not([type]):focus {
+  border-bottom-color: #e6b905;
+}
+
+.range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range input {
+  width: 140px;
+  accent-color: #e6b905;
+  cursor: pointer;
+}
+
+.range output {
+  width: 3em;
+  color: var(--text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.swatches {
+  display: flex;
+  gap: 6px;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.swatch:hover,
+.swatch.selected {
+  border-color: var(--text);
+}
+
+.toggle {
+  width: 18px;
+  height: 18px;
+  accent-color: #e6b905;
+  cursor: pointer;
+}
+
+/* 付箋本文と同じ CSS 変数 (src/fonts.ts) で見本を表示する */
+.preview {
+  --note-font: var(--font-ui);
+  --note-font-code: var(--font-code);
+  --note-font-size: 14px;
+  margin: 4px 12px 12px;
+  padding: 8px 12px;
+  border-top: 4px solid var(--accent);
+  border-radius: 4px;
+  background: #1a1a1a;
+  font-family: var(--note-font);
+  font-size: var(--note-font-size);
+  line-height: 1.5;
+}
+
+.preview p {
+  margin: 0;
+}
+
+.preview .preview-heading {
+  font-size: 1.25em;
+  font-weight: 600;
+}
+
+.preview code {
+  font-family: var(--note-font-code);
+  font-size: 0.875em;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--danger);
+}
